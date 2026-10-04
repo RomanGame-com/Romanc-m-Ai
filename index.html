@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Romancom AI</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;font-family:Arial,Helvetica,sans-serif;background:#07050c;color:#fff}
+button,input,textarea{font:inherit}
+
+:root{
+ --purple:#9b4dff;
+ --purple2:#6f20ff;
+ --bg:#08060e;
+ --panel:#100b18;
+ --panel2:#171020;
+ --border:#302040;
+ --text:#f5efff;
+ --muted:#968ba5;
+}
+
+body{
+ overflow:hidden;
+ background:
+ radial-gradient(circle at 70% 10%,#41127733,transparent 30%),
+ radial-gradient(circle at 20% 90%,#641bc522,transparent 30%),
+ #07050c;
+}
+
+.app{height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{
+ width:280px;
+ background:#0e0a15eF;
+ border-right:1px solid var(--border);
+ padding:18px;
+ display:flex;
+ flex-direction:column;
+ z-index:20;
+ transition:.25s;
+}
+
+.logo{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ font-size:21px;
+ font-weight:bold;
+ margin-bottom:22px;
+}
+
+.logoIcon{
+ width:40px;
+ height:40px;
+ border-radius:12px;
+ display:grid;
+ place-items:center;
+ background:linear-gradient(135deg,#c06cff,#6820ff);
+ box-shadow:0 0 25px #8e3dff88;
+}
+
+.logo span{color:#ae69ff}
+
+.newChat{
+ border:1px solid #51268a;
+ background:linear-gradient(135deg,#25123a,#181021);
+ color:#fff;
+ width:100%;
+ padding:13px;
+ border-radius:12px;
+ cursor:pointer;
+ margin-bottom:12px;
+}
+
+.menu button,
+.history button,
+.adminButton{
+ width:100%;
+ border:0;
+ background:transparent;
+ color:#c8bdd5;
+ padding:12px;
+ border-radius:10px;
+ cursor:pointer;
+ text-align:left;
+ margin:2px 0;
+}
+
+.menu button:hover,
+.history button:hover,
+.adminButton:hover{
+ background:#20132d;
+ color:#fff;
+}
+
+.sectionTitle{
+ font-size:10px;
+ color:#756b80;
+ margin:22px 8px 8px;
+ letter-spacing:1px;
+}
+
+.history{
+ overflow:auto;
+ flex:1;
+}
+
+.admin{
+ border-top:1px solid var(--border);
+ padding-top:12px;
+}
+
+/* MAIN */
+.main{
+ flex:1;
+ min-width:0;
+ position:relative;
+ display:flex;
+ flex-direction:column;
+}
+
+.top{
+ height:60px;
+ border-bottom:1px solid #21172b;
+ display:flex;
+ align-items:center;
+ padding:0 20px;
+ background:#09070dcc;
+ backdrop-filter:blur(15px);
+}
+
+.hamburger{
+ display:none;
+ background:none;
+ border:0;
+ color:white;
+ font-size:25px;
+ cursor:pointer;
+}
+
+.mobileLogo{
+ display:none;
+ font-weight:bold;
+}
+
+.topRight{
+ margin-left:auto;
+ color:#9d91aa;
+ font-size:12px;
+}
+
+.chat{
+ flex:1;
+ overflow-y:auto;
+ padding:30px 20px 140px;
+}
+
+.chatInner{
+ width:min(900px,100%);
+ margin:auto;
+}
+
+.welcome{
+ text-align:center;
+ margin-top:10vh;
+}
+
+.welcomeIcon{
+ width:70px;
+ height:70px;
+ margin:auto;
+ border-radius:22px;
+ display:grid;
+ place-items:center;
+ font-size:32px;
+ font-weight:bold;
+ background:linear-gradient(135deg,#bf6cff,#7024ff);
+ box-shadow:0 0 40px #8e3dff66;
+}
+
+.welcome h1{
+ font-size:40px;
+ margin:18px 0 8px;
+}
+
+.welcome p{
+ color:var(--muted);
+}
+
+.quick{
+ display:flex;
+ flex-wrap:wrap;
+ justify-content:center;
+ gap:10px;
+ margin-top:25px;
+}
+
+.quick button{
+ padding:12px 15px;
+ border:1px solid var(--border);
+ background:#15101d;
+ color:#ddd3e8;
+ border-radius:12px;
+ cursor:pointer;
+}
+
+.quick button:hover{
+ border-color:#8040c9;
+}
+
+/* MESSAGES */
+.message{
+ display:flex;
+ gap:10px;
+ margin:20px 0;
+}
+
+.message.user{
+ justify-content:flex-end;
+}
+
+.avatar{
+ width:36px;
+ height:36px;
+ min-width:36px;
+ border-radius:11px;
+ background:#21152d;
+ display:grid;
+ place-items:center;
+}
+
+.message.user .avatar{
+ order:2;
+ background:linear-gradient(135deg,#8e3dff,#b667ff);
+}
+
+.bubble{
+ max-width:min(750px,85%);
+ padding:13px 16px;
+ border-radius:17px;
+ background:#15101d;
+ line-height:1.55;
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+}
+
+.message.user .bubble{
+ background:linear-gradient(135deg,#7130d6,#a34cff);
+}
+
+/* INPUT */
+.composer{
+ position:absolute;
+ bottom:17px;
+ left:50%;
+ transform:translateX(-50%);
+ width:min(900px,calc(100% - 30px));
+ display:flex;
+ gap:8px;
+ padding:9px;
+ background:#14101b;
+ border:1px solid #39234c;
+ border-radius:19px;
+ box-shadow:0 15px 45px #000b;
+}
+
+.composer textarea{
+ flex:1;
+ resize:none;
+ border:0;
+ outline:0;
+ background:transparent;
+ color:#fff;
+ padding:11px 5px;
+ min-height:43px;
+ max-height:130px;
+}
+
+.round{
+ width:43px;
+ height:43px;
+ min-width:43px;
+ border:0;
+ border-radius:50%;
+ background:#24172f;
+ color:#ddd;
+ cursor:pointer;
+}
+
+.send{
+ width:43px;
+ height:43px;
+ min-width:43px;
+ border:0;
+ border-radius:50%;
+ color:#fff;
+ cursor:pointer;
+ font-size:19px;
+ background:linear-gradient(135deg,#7d30ed,#b35cff);
+ box-shadow:0 0 20px #8e3dff44;
+}
+
+/* PANELS */
+.panel{
+ position:absolute;
+ inset:75px 20px 95px;
+ background:#0d0913;
+ border:1px solid #40245b;
+ border-radius:18px;
+ z-index:5;
+ overflow:hidden;
+ box-shadow:0 0 50px #000b;
+}
+
+.panelHeader{
+ height:55px;
+ display:flex;
+ align-items:center;
+ padding:0 15px;
+ border-bottom:1px solid var(--border);
+ background:#130d1c;
+}
+
+.panelHeader b{font-size:16px}
+
+.close{
+ margin-left:auto;
+ background:#281831;
+ color:white;
+ border:0;
+ border-radius:8px;
+ padding:8px 13px;
+ cursor:pointer;
+}
+
+.gameFrame{
+ width:100%;
+ height:calc(100% - 55px);
+ border:0;
+ background:white;
+}
+
+.codeArea{
+ width:100%;
+ height:calc(100% - 55px);
+ resize:none;
+ border:0;
+ outline:0;
+ background:#08060c;
+ color:#ddd;
+ padding:20px;
+ font-family:monospace;
+ font-size:14px;
+}
+
+.hidden{display:none!important}
+
+/* MODAL */
+.modal{
+ position:fixed;
+ inset:0;
+ background:#000b;
+ display:grid;
+ place-items:center;
+ z-index:100;
+}
+
+.modalBox{
+ width:min(430px,92%);
+ background:#120d1a;
+ border:1px solid #512d70;
+ border-radius:20px;
+ padding:25px;
+ position:relative;
+ box-shadow:0 0 60px #762cff44;
+}
+
+.modalBox h2{margin-top:0}
+
+.modalBox input{
+ width:100%;
+ padding:13px;
+ margin:15px 0;
+ border-radius:10px;
+ border:1px solid #3c254d;
+ outline:0;
+ background:#09070d;
+ color:#fff;
+}
+
+.modalBox .action{
+ border:0;
+ padding:12px 18px;
+ border-radius:10px;
+ background:#8d40ed;
+ color:#fff;
+ cursor:pointer;
+}
+
+.closeModal{
+ position:absolute;
+ right:12px;
+ top:8px;
+ border:0;
+ background:none;
+ color:white;
+ font-size:28px;
+ cursor:pointer;
+}
+
+/* MOBILE */
+@media(max-width:760px){
+
+ .sidebar{
+   position:fixed;
+   top:0;
+   bottom:0;
+   left:0;
+   transform:translateX(-100%);
+ }
+
+ .sidebar.open{
+   transform:translateX(0);
+ }
+
+ .hamburger{
+   display:block;
+   margin-right:13px;
+ }
+
+ .mobileLogo{
+   display:block;
+ }
+
+ .top{
+   height:57px;
+   padding:0 12px;
+ }
+
+ .topRight{
+   font-size:10px;
+ }
+
+ .welcome{
+   margin-top:7vh;
+ }
+
+ .welcome h1{
+   font-size:31px;
+ }
+
+ .chat{
+   padding:20px 10px 130px;
+ }
+
+ .bubble{
+   max-width:88%;
+ }
+
+ .panel{
+   inset:65px 7px 90px;
+ }
+
+ .composer{
+   width:calc(100% - 14px);
+   bottom:7px;
+ }
+
+ .quick button{
+   width:100%;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+
+<div class="logo">
+ <div class="logoIcon">R</div>
+ <div>Romancom <span>AI</span></div>
+</div>
+
+<button class="newChat" id="newChat">＋ Yeni Sohbet</button>
+
+<div class="menu">
+
+<button onclick="setMode('chat')">💬 AI Sohbet</button>
+<button onclick="setMode('game')">🎮 Oyun Yap</button>
+<button onclick="setMode('code')">💻 Kod Yaz</button>
+<button onclick="setMode('website')">🌐 Web Sitesi</button>
+
+</div>
+
+<div class="sectionTitle">SON SOHBETLER</div>
+
+<div class="history" id="history"></div>
+
+<div class="admin">
+
+<button class="adminButton" onclick="openAdmin()">
+👑 Roman Mustafa Ateşi
+</button>
+
+</div>
+
+</aside>
+
+<main class="main">
+
+<header class="top">
+
+<button class="hamburger" onclick="toggleMenu()">☰</button>
+
+<div class="mobileLogo">
+Romancom <span style="color:#ad63ff">AI</span>
+</div>
+
+<div class="topRight">
+⚡ Romancom AI
+</div>
+
+</header>
+
+<section class="chat" id="chat">
+
+<div class="chatInner" id="chatInner">
+
+<div class="welcome" id="welcome">
+
+<div class="welcomeIcon">R</div>
+
+<h1>Romancom AI</h1>
+
+<p>
+Sorunu yaz. Kod yazabilir, oyun oluşturabilir,
+web sitesi tasarlayabilir veya sohbet edebiliriz.
+</p>
+
+<div class="quick">
+
+<button onclick="quick('Bana bir oyun yap')">
+🎮 Oyun Yap
+</button>
+
+<button onclick="quick('Modern bir web sitesi oluştur')">
+🌐 Web Sitesi
+</button>
+
+<button onclick="quick('JavaScript öğrenmeme yardım et')">
+💻 Kod Öğren
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- GAME -->
+<section class="panel hidden" id="gamePanel">
+
+<div class="panelHeader">
+
+<b>🎮 Romancom Oyun Stüdyosu</b>
+
+<button class="close" onclick="closePanels()">Kapat</button>
+
+</div>
+
+<iframe
+id="gameFrame"
+class="gameFrame"
+sandbox="allow-scripts">
+</iframe>
+
+</section>
+
+<!-- CODE -->
+<section class="panel hidden" id="codePanel">
+
+<div class="panelHeader">
+
+<b>💻 Kod Alanı</b>
+
+<button class="close" onclick="closePanels()">Kapat</button>
+
+</div>
+
+<textarea
+id="codeArea"
+class="codeArea"
+spellcheck="false"
+placeholder="// Romancom AI tarafından oluşturulan kod burada görünür..."></textarea>
+
+</section>
+
+<form class="composer" id="composer">
+
+<button
+type="button"
+class="round"
+onclick="plusMenu()">＋</button>
+
+<textarea
+id="input"
+rows="1"
+placeholder="Romancom AI'ya bir şey sor..."
+></textarea>
+
+<button
+type="button"
+class="round"
+onclick="voiceInput()">🎙️</button>
+
+<button
+type="submit"
+class="send">➤</button>
+
+</form>
+
+</main>
+
+</div>
+
+<!-- ADMIN -->
+
+<div class="modal hidden" id="adminModal">
+
+<div class="modalBox">
+
+<button class="closeModal" onclick="closeAdmin()">×</button>
+
+<h2>👑 Kurucu Paneli</h2>
+
+<p><b>Roman Mustafa Ateşi</b></p>
+
+<p style="color:#95899f">
+Romancom AI yönetim paneli
+</p>
+
+<input
+id="adminPassword"
+type="password"
+placeholder="Admin şifresi">
+
+<button
+class="action"
+onclick="adminLogin()">
+Giriş Yap
+</button>
+
+<div id="adminResult"></div>
+
+</div>
+
+</div>
+
+<script>
+
+/* =========================
+   ROMANCOM AI
+========================= */
+
+let mode="chat";
+
+let messages=
+JSON.parse(localStorage.getItem("romancom_messages")||"[]");
+
+const chatInner=document.getElementById("chatInner");
+const input=document.getElementById("input");
+const history=document.getElementById("history");
+
+function escapeHTML(text){
+
+ return text
+ .replaceAll("&","&amp;")
+ .replaceAll("<","&lt;")
+ .replaceAll(">","&gt;")
+ .replaceAll('"',"&quot;")
+ .replaceAll("'","&#039;");
+
+}
+
+/* MENU */
+
+function toggleMenu(){
+
+ document
+ .getElementById("sidebar")
+ .classList.toggle("open");
+
+}
+
+/* MODE */
+
+function setMode(newMode){
+
+ mode=newMode;
+
+ document
+ .getElementById("sidebar")
+ .classList.remove("open");
+
+ closePanels();
+
+ if(newMode==="game")
+ input.placeholder="Nasıl bir oyun yapmamı istersin?";
+
+ else if(newMode==="code")
+ input.placeholder="Hangi kodu yazmamı istersin?";
+
+ else if(newMode==="website")
+ input.placeholder="Nasıl bir web sitesi yapmamı istersin?";
+
+ else
+ input.placeholder="Romancom AI'ya bir şey sor...";
+
+}
+
+/* NEW CHAT */
+
+document.getElementById("newChat").onclick=()=>{
+
+ messages=[];
+
+ localStorage.removeItem("romancom_messages");
+
+ chatInner.innerHTML=`
+
+ <div class="welcome" id="welcome">
+
+ <div class="welcomeIcon">R</div>
+
+ <h1>Romancom AI</h1>
+
+ <p>Yeni sohbet başladı 🚀</p>
+
+ </div>
+
+ `;
+
+ renderHistory();
+
+};
+
+/* MESSAGE */
+
+function addMessage(text,type){
+
+ const div=document.createElement("div");
+
+ div.className="message "+type;
+
+ div.innerHTML=`
+
+ <div class="avatar">
+ ${type==="user"?"👤":"R"}
+ </div>
+
+ <div class="bubble">
+ ${escapeHTML(text)}
+ </div>
+
+ `;
+
+ chatInner.appendChild(div);
+
+ document
+ .getElementById("chat")
+ .scrollTop=999999;
+
+}
+
+/* HISTORY */
+
+function renderHistory(){
+
+ history.innerHTML="";
+
+ messages
+ .filter(x=>x.type==="user")
+ .slice(-20)
+ .reverse()
+ .forEach(x=>{
+
+   const button=document.createElement("button");
+
+   button.textContent=x.text.slice(0,35);
+
+   button.onclick=()=>{
+
+     input.value=x.text;
+
+   };
+
+   history.appendChild(button);
+
+ });
+
+}
+
+renderHistory();
+
+/* QUICK */
+
+function quick(text){
+
+ input.value=text;
+
+ document
+ .getElementById("composer")
+ .requestSubmit();
+
+}
+
+/* SEND */
+
+document.getElementById("composer").addEventListener(
+"submit",
+async function(e){
+
+ e.preventDefault();
+
+ const text=input.value.trim();
+
+ if(!text)return;
+
+ document.getElementById("welcome")?.remove();
+
+ addMessage(text,"user");
+
+ messages.push({
+   type:"user",
+   text:text
+ });
+
+ localStorage.setItem(
+   "romancom_messages",
+   JSON.stringify(messages)
+ );
+
+ renderHistory();
+
+ input.value="";
+
+ /* typing */
+
+ const typing=document.createElement("div");
+
+ typing.className="message";
+
+ typing.id="typing";
+
+ typing.innerHTML=`
+
+ <div class="avatar">R</div>
+
+ <div class="bubble">
+ Düşünüyorum...
+ </div>
+
+ `;
+
+ chatInner.appendChild(typing);
+
+ setTimeout(()=>{
+
+   document.getElementById("typing")?.remove();
+
+   let answer=getLocalAI(text);
+
+   addMessage(answer,"ai");
+
+   messages.push({
+     type:"ai",
+     text:answer
+   });
+
+   localStorage.setItem(
+     "romancom_messages",
+     JSON.stringify(messages)
+   );
+
+ },650);
+
+});
+
+/* =========================
+ LOCAL AI
+========================= */
+
+function getLocalAI(text){
+
+ const t=text.toLowerCase();
+
+ /* GAME */
+
+ if(
+ mode==="game" ||
+ t.includes("oyun yap") ||
+ t.includes("oyun oluştur") ||
+ t.includes("oyun yapabilir")
+ ){
+
+   createGame(text);
+
+   return "🎮 Oyunun temel sürümünü oluşturdum! Oyun Stüdyosu açıldı.";
+
+ }
+
+ /* CODE */
+
+ if(
+ mode==="code" ||
+ t.includes("kod yaz") ||
+ t.includes("javascript") ||
+ t.includes("html kod")
+ ){
+
+   document
+   .getElementById("codePanel")
+   .classList.remove("hidden");
+
+   const code=
+`// Romancom AI Kod Alanı
+
+function merhaba(){
+
+ console.log("Merhaba Romancom AI!");
+
+}
+
+merhaba();`;
+
+   document.getElementById("codeArea").value=code;
+
+   return "💻 Kod alanını açtım. İstersen kodu değiştirebiliriz.";
+
+ }
+
+ /* WEBSITE */
+
+ if(
+ mode==="website" ||
+ t.includes("web sitesi") ||
+ t.includes("website")
+ ){
+
+   createWebsite();
+
+   return "🌐 Örnek modern web sitesi oluşturdum ve önizlemesini açtım.";
+
+ }
+
+ if(t.includes("merhaba")||t.includes("selam"))
+ return "Merhaba! 👋 Ben Romancom AI. Sana nasıl yardımcı olabilirim?";
+
+ if(t.includes("nasılsın"))
+ return "İyiyim aga 😎 Senin için hazırım!";
+
+ if(t.includes("kimsin"))
+ return "Ben Romancom AI. Sohbet edebilir, kod yazabilir ve tarayıcı içinde oyun/web sitesi prototipleri oluşturabilirim.";
+
+ if(t.includes("teşekkür"))
+ return "Rica ederim! ❤️";
+
+ return `
+🤖 Romancom AI hazır.
+
+Sorunu anladım:
+"${text}"
+
+Bu GitHub Pages sürümünde gerçek yapay zekâ API'si
+olmadan çalışıyorum. Bu nedenle burada temel yerel
+cevap sistemi kullanılıyor.
+
+Gerçek ChatGPT seviyesinde cevaplar için güvenli bir
+backend/API bağlantısı eklememiz gerekiyor.
+
+Ama oyun, kod ve web sitesi bölümleri bu sayfada
+çalışıyor. 🚀
+ `;
+
+}
+
+/* =========================
+ GAME ENGINE
+========================= */
+
+function createGame(prompt){
+
+ document
+ .getElementById("gamePanel")
+ .classList.remove("hidden");
+
+ const game=`
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+font-family:Arial;
+background:#111;
+color:white;
+}
+
+canvas{
+display:block;
+background:
+linear-gradient(#20103b,#08040d);
+}
+
+#ui{
+position:fixed;
+top:10px;
+left:10px;
+background:#0009;
+padding:12px;
+border-radius:10px;
+}
+
+button{
+padding:10px;
+border:0;
+border-radius:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="ui">
+
+🎮 ROMANCOM OYUN
+
+<br>
+
+Skor:
+<span id="score">0</span>
+
+<br><br>
+
+<button onclick="restart()">
+Yeniden Başlat
+</button>
+
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+
+const c=document.getElementById("game");
+
+const x=c.getContext("2d");
+
+function resize(){
+
+c.width=innerWidth;
+
+c.height=innerHeight;
+
+}
+
+resize();
+
+onresize=resize;
+
+let player={
+x:100,
+y:100,
+size:35,
+speed:6
+};
+
+let score=0;
+
+let keys={};
+
+onkeydown=e=>keys[e.key.toLowerCase()]=true;
+
+onkeyup=e=>keys[e.key.toLowerCase()]=false;
+
+let coins=[];
+
+for(let i=0;i<20;i++){
+
+coins.push({
+
+x:Math.random()*(innerWidth-60)+30,
+
+y:Math.random()*(innerHeight-60)+30
+
+});
+
+}
+
+function loop(){
+
+x.clearRect(0,0,c.width,c.height);
+
+if(keys["w"]||keys["arrowup"])
+player.y-=player.speed;
+
+if(keys["s"]||keys["arrowdown"])
+player.y+=player.speed;
+
+if(keys["a"]||keys["arrowleft"])
+player.x-=player.speed;
+
+if(keys["d"]||keys["arrowright"])
+player.x+=player.speed;
+
+player.x=Math.max(0,
+Math.min(c.width-player.size,player.x));
+
+player.y=Math.max(0,
+Math.min(c.height-player.size,player.y));
+
+x.fillStyle="#9b4dff";
+
+x.fillRect(
+player.x,
+player.y,
+player.size,
+player.size
+);
+
+coins.forEach((coin,i)=>{
+
+x.fillStyle="#ffd43b";
+
+x.beginPath();
+
+x.arc(
+coin.x,
+coin.y,
+10,
+0,
+Math.PI*2
+);
+
+x.fill();
+
+if(
+Math.abs(player.x-coin.x)<30 &&
+Math.abs(player.y-coin.y)<30
+){
+
+coins.splice(i,1);
+
+score++;
+
+document.getElementById("score")
+.textContent=score;
+
+}
+
+});
+
+if(coins.length===0){
+
+x.fillStyle="white";
+
+x.font="40px Arial";
+
+x.fillText(
+"🏆 KAZANDIN!",
+c.width/2-130,
+c.height/2
+);
+
+}
+
+requestAnimationFrame(loop);
+
+}
+
+function restart(){
+
+location.reload();
+
+}
+
+loop();
+
+<\/script>
+
+</body>
+
+</html>
+`;
+
+ document.getElementById("gameFrame").srcdoc=game;
+
+}
+
+/* WEBSITE */
+
+function createWebsite(){
+
+ document
+ .getElementById("gamePanel")
+ .classList.remove("hidden");
+
+ const site=`
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#090510;
+color:white;
+text-align:center;
+}
+
+.hero{
+padding:100px 20px;
+background:
+linear-gradient(135deg,#5013a8,#160523);
+}
+
+h1{
+font-size:55px;
+}
+
+button{
+padding:15px 25px;
+border:0;
+border-radius:10px;
+background:#9b4dff;
+color:white;
+}
+
+.card{
+display:inline-block;
+padding:30px;
+margin:20px;
+background:#181022;
+border-radius:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<section class="hero">
+
+<h1>Romancom</h1>
+
+<p>Modern Web Sitesi</p>
+
+<button>Başla</button>
+
+</section>
+
+<div class="card">
+
+<h2>⚡ Hızlı</h2>
+
+<p>Modern ve responsive.</p>
+
+</div>
+
+<div class="card">
+
+<h2>🚀 Güçlü</h2>
+
+<p>Yeni nesil tasarım.</p>
+
+</div>
+
+</body>
+
+</html>
+`;
+
+ document.getElementById("gameFrame").srcdoc=site;
+
+}
+
+/* PANELS */
+
+function closePanels(){
+
+ document
+ .getElementById("gamePanel")
+ .classList.add("hidden");
+
+ document
+ .getElementById("codePanel")
+ .classList.add("hidden");
+
+}
+
+/* VOICE */
+
+function voiceInput(){
+
+ const Speech=
+ window.SpeechRecognition||
+ window.webkitSpeechRecognition;
+
+ if(!Speech){
+
+ alert("Tarayıcın sesli yazmayı desteklemiyor.");
+
+ return;
+
+ }
+
+ const recognition=new Speech();
+
+ recognition.lang="tr-TR";
+
+ recognition.interimResults=false;
+
+ recognition.onresult=e=>{
+
+   input.value+=
+   (input.value?" ":"")+
+   e.results[0][0].transcript;
+
+ };
+
+ recognition.start();
+
+}
+
+/* PLUS */
+
+function plusMenu(){
+
+ alert(
+ "📎 Dosya/resim yükleme sistemi gerçek backend ile eklenebilir."
+ );
+
+}
+
+/* ADMIN */
+
+function openAdmin(){
+
+ document
+ .getElementById("adminModal")
+ .classList.remove("hidden");
+
+}
+
+function closeAdmin(){
+
+ document
+ .getElementById("adminModal")
+ .classList.add("hidden");
+
+}
+
+function adminLogin(){
+
+ const password=
+ document.getElementById("adminPassword").value;
+
+ if(password==="roman123"){
+
+ document.getElementById("adminResult").innerHTML=`
+
+ <div style="
+ margin-top:20px;
+ padding:15px;
+ border-radius:12px;
+ background:#1d1328">
+
+ <b>✅ Admin girişi başarılı</b>
+
+ <p>Kurucu: Roman Mustafa Ateşi</p>
+
+ <p>AI sistemi: Aktif</p>
+
+ <p>Oyun sistemi: Aktif</p>
+
+ <p>Web sistemi: Aktif</p>
+
+ </div>
+
+ `;
+
+ }else{
+
+ alert("❌ Şifre yanlış.");
+
+ }
+
+}
+
+</script>
+
+</body>
+</html>
